@@ -1,0 +1,10 @@
+flask
+flask-pymongo
+pymongo[srv]
+gunicorn
+python-dotenv
+dnspython
+Werkzeug
+reportlab
+python-dotenv
+requests
