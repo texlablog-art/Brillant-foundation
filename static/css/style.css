@@ -1,0 +1,327 @@
+/* --- Brilliants Foundation Official Styles --- */
+:root { 
+    --navy: #000080;      
+    --red: #ED1C24;       
+    --gold: #FFCC00;      
+    --light-bg: #F0F4F8; 
+    --white: #FFFFFF; 
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%; /* Required for sticky footer */
+}
+
+body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    background: var(--light-bg); 
+    color: #1A202C; 
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column; /* Pushes footer down only if content is short */
+}
+
+/* --- Navbar: Compact & Fixed --- */
+nav { 
+    background: white; 
+    color: rgb(0, 0, 0); 
+    padding: 0 5%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: 70px; /* Fixed height to prevent layout shift */
+    border-bottom: 4px solid var(--red);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: 10px;
+    height: 100%;
+}
+
+.logo-img {
+    height: 50px; /* Constrained height */
+    width: auto;
+}
+
+.logo-text .main-title { 
+    font-size: 1rem; 
+    font-weight: 800; 
+    display: block; 
+    color: rgb(0, 0, 0); 
+    line-height: 1.1;
+}
+
+.logo-text .sub-title { 
+    font-size: 0.7rem; 
+    color: var(--gold); 
+    font-weight: 600;
+}
+
+/* --- Navigation Links --- */
+.nav-links { display: flex; align-items: center; }
+
+.nav-links a { 
+    color: rgb(0, 0, 0); 
+    text-decoration: none; 
+    margin-left: 15px; 
+    font-weight: 600; 
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: var(--transition);
+    text-transform: uppercase;
+}
+
+.nav-links a:hover { color: var(--gold); background: rgb(255, 255, 255); }
+
+/* --- Main Content: Fit to Size --- */
+.container { 
+    width: 95%;
+    max-width: 1100px; 
+    margin: 20px auto; 
+    flex: 1 0 auto; /* Ensures main area expands but footer stays down */
+}
+
+.card { 
+    background: var(--white); 
+    padding: 25px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-top: 4px solid var(--navy);
+    width: 100%;
+    height: fit-content; /* Only as tall as its content */
+}
+
+/* --- Grid System --- */
+.grid-flex {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* --- Mobile Toggle --- */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    width: 25px;
+    height: 3px;
+    background: var(--gold);
+    border-radius: 2px;
+}
+
+/* --- Tablet & Mobile Optimizations --- */
+@media (max-width: 850px) {
+    .nav-links {
+        display: none; /* Hide for JS toggle */
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background: #B2BEB5;
+        flex-direction: column;
+        padding: 15px 0;
+        border-bottom: 3px solid var(--gold);
+    }
+
+    .nav-links.active { display: flex; }
+
+    .nav-links a { 
+        margin: 10px 0; 
+        width: 100%; 
+        text-align: center;
+        font-size: 1rem; 
+    }
+
+    .menu-toggle { display: flex; }
+    
+    .logo-text .main-title { font-size: 0.9rem; }
+}
+
+/* --- Footer: Minimal --- */
+footer { 
+    background: #1A202C;
+    color: #E2E8F0;
+    padding: 20px;
+    text-align: center;
+    border-top: 4px solid var(--gold);
+    flex-shrink: 0; /* Prevents footer from squishing */
+    font-size: 0.8rem;
+}
+
+/* --- Admin Dashboard Layout --- */
+:root { 
+    --sidebar-width: 260px;
+    --navy-dark: #1a202c;
+    --navy-light: #2d3748;
+    --admin-blue: #3182ce;
+    --admin-green: #38a169;
+    --light-gray: #f7fafc;
+    --white: #ffffff;
+    --gold: #FFCC00;
+    --red: #ED1C24;
+    --transition: all 0.3s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+    font-family: 'Inter', system-ui, sans-serif; 
+    background: var(--light-gray); 
+    display: flex; /* Horizontal layout for Sidebar + Main */
+    min-height: 100vh;
+}
+
+/* --- Sidebar Styling --- */
+aside.admin-sidebar { 
+    width: var(--sidebar-width);
+    background: var(--navy-dark);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 1100;
+    transition: var(--transition);
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--navy-light);
+    text-align: center;
+}
+
+.sidebar-header .admin-label {
+    font-size: 0.75rem;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.sidebar-menu {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    color: #a0aec0;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    border-left: 4px solid transparent;
+}
+
+.sidebar-menu a i { margin-right: 12px; width: 20px; text-align: center; }
+
+.sidebar-menu a:hover, .sidebar-menu a.active {
+    background: var(--navy-light);
+    color: white;
+    border-left-color: var(--admin-blue);
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--navy-light);
+}
+
+/* --- Main Content Area --- */
+main.admin-main { 
+    flex: 1;
+    margin-left: var(--sidebar-width); /* Push content away from sidebar */
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - var(--sidebar-width));
+}
+
+/* Top Navigation Bar */
+.admin-top-nav {
+    height: 60px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.content-body {
+    padding: 30px;
+    flex: 1;
+}
+
+/* --- Admin Card Components --- */
+.admin-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.mobile-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--navy-dark);
+}
+
+/* --- Responsive Adaptations --- */
+@media (max-width: 992px) {
+    aside.admin-sidebar {
+        left: calc(var(--sidebar-width) * -1); /* Hide sidebar off-screen */
+    }
+
+    aside.admin-sidebar.active {
+        left: 0; /* Slide in when active */
+    }
+
+    main.admin-main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .mobile-toggle {
+        display: block;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgb(0, 0, 0, 0.5);
+        z-index: 1050;
+    }
+    
+    .sidebar-overlay.active { display: block; }
+}
+
+@media (max-width: 600px) {
+    .content-body { padding: 15px; }
+    .admin-top-nav { padding: 0 15px; }
+<<<<<<< HEAD
+}
+=======
+}
+>>>>>>> b9a13b7 (new version 1.0)
