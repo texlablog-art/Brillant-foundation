@@ -1,0 +1,235 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<style>
+    .inst-container { padding: 28px; font-family: 'Inter', sans-serif; }
+
+    .page-title {
+        color: #1e293b; margin-bottom: 24px; font-size: 1.4rem;
+        font-weight: 700; display: flex; align-items: center; gap: 10px;
+    }
+
+    /* Flash messages */
+    .flash-msg {
+        padding: 12px 16px; border-radius: 8px; margin-bottom: 18px;
+        font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;
+    }
+    .flash-success { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+    .flash-danger  { background:#fff1f2; color:#9f1239; border:1px solid #fecdd3; }
+    .flash-info    { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+
+    /* Add form card */
+    .add-card {
+        background: white; padding: 24px; border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: 28px;
+        border-left: 4px solid #10b981;
+    }
+    .add-card h4 {
+        margin: 0 0 16px; color: #334155; font-size: 15px;
+        display: flex; align-items: center; gap: 8px;
+    }
+
+    .input-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 220px; }
+    .input-group label {
+        font-size: 11px; font-weight: 700; color: #64748b;
+        text-transform: uppercase; letter-spacing: .5px;
+    }
+    .input-group input {
+        padding: 11px 14px; border: 1.5px solid #e2e8f0;
+        border-radius: 8px; font-size: 13.5px; outline: none;
+        transition: border-color .2s;
+    }
+    .input-group input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.1); }
+
+    .btn-add {
+        background: #10b981; color: white; border: none;
+        padding: 11px 24px; border-radius: 8px; font-weight: 700;
+        font-size: 13px; cursor: pointer; display: flex;
+        align-items: center; gap: 7px; white-space: nowrap;
+        align-self: flex-end; transition: background .2s;
+    }
+    .btn-add:hover { background: #059669; }
+
+    /* List card */
+    .list-card {
+        background: white; border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden;
+    }
+    .list-card-header {
+        padding: 16px 22px; background: #f8fafc;
+        border-bottom: 1.5px solid #e2e8f0;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .list-card-header span {
+        font-size: 13px; font-weight: 700; color: #475569;
+    }
+    .count-badge {
+        background: #e2e8f0; color: #475569;
+        border-radius: 20px; padding: 3px 12px;
+        font-size: 12px; font-weight: 700;
+    }
+
+    /* Search box */
+    .search-box {
+        padding: 12px 20px; border-bottom: 1px solid #f1f5f9;
+        background: #fff;
+    }
+    .search-box input {
+        width: 100%; padding: 9px 14px;
+        border: 1.5px solid #e2e8f0; border-radius: 7px;
+        font-size: 13px; outline: none; box-sizing: border-box;
+    }
+    .search-box input:focus { border-color: #6366f1; }
+
+    /* Table */
+    .inst-table { width: 100%; border-collapse: collapse; }
+    .inst-table thead tr {
+        background: #f1f5f9; border-bottom: 2px solid #e2e8f0;
+    }
+    .inst-table th {
+        padding: 12px 20px; text-align: left;
+        font-size: 11px; font-weight: 700; color: #64748b;
+        text-transform: uppercase; letter-spacing: .5px;
+    }
+    .inst-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background .15s;
+    }
+    .inst-table tbody tr:hover { background: #fafbfc; }
+    .inst-table tbody tr:last-child { border-bottom: none; }
+
+    .inst-table td { padding: 13px 20px; vertical-align: middle; }
+
+    .name-en { font-weight: 600; color: #1e293b; font-size: 13.5px; }
+    .name-bn {
+        font-size: 13px; color: #475569; margin-top: 2px;
+        font-family: 'SolaimanLipi', 'Kalpurush', sans-serif;
+    }
+    .name-bn.empty { color: #cbd5e1; font-style: italic; font-family: inherit; font-size: 12px; }
+
+    .sl-cell { color: #94a3b8; font-size: 12px; font-weight: 600; width: 50px; }
+
+    .btn-delete {
+        background: #fff1f2; color: #ef4444;
+        border: 1px solid #fecdd3; border-radius: 6px;
+        padding: 6px 12px; cursor: pointer; font-size: 12px;
+        font-weight: 600; display: flex; align-items: center; gap: 5px;
+        text-decoration: none; transition: all .2s;
+    }
+    .btn-delete:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+    .empty-state {
+        padding: 50px 20px; text-align: center; color: #94a3b8;
+    }
+    .empty-state i { font-size: 40px; display: block; margin-bottom: 12px; }
+</style>
+
+<div class="inst-container">
+    <h2 class="page-title">
+        <i class="fas fa-university" style="color:#10b981;"></i>
+        Manage Institutions
+    </h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg flash-{{ category }}">
+            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Add Institution Card -->
+    <div class="add-card">
+        <h4><i class="fas fa-plus-circle" style="color:#10b981;"></i> Add New Institution</h4>
+        <form action="{{ url_for('add_institute') }}" method="POST">
+            <div class="input-row">
+                <div class="input-group">
+                    <label><i class="fas fa-font"></i> English Name <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="name"
+                           placeholder="e.g. Bogura Government School"
+                           required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-language"></i> Bangla Name (বাংলা নাম)</label>
+                    <input type="text" name="name_bn"
+                           placeholder="যেমন: বগুড়া সরকারি বিদ্যালয়"
+                           autocomplete="off">
+                </div>
+                <button type="submit" class="btn-add">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Institution List -->
+    <div class="list-card">
+        <div class="list-card-header">
+            <span><i class="fas fa-list" style="margin-right:6px;"></i> All Institutions</span>
+            <span class="count-badge">{{ institutes|length }} Total</span>
+        </div>
+
+        <!-- Live search -->
+        <div class="search-box">
+            <input type="text" id="searchInput"
+                   placeholder="🔍  Search by name..."
+                   oninput="filterInst(this.value)">
+        </div>
+
+        <table class="inst-table" id="instTable">
+            <thead>
+                <tr>
+                    <th class="sl-cell">#</th>
+                    <th>Institution Name (English / বাংলা)</th>
+                    <th style="width:100px; text-align:center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inst in institutes %}
+                <tr data-name="{{ inst.name|lower }} {{ inst.bn|default('')|lower }}">
+                    <td class="sl-cell">{{ loop.index }}</td>
+                    <td>
+                        <div class="name-en">{{ inst.name }}</div>
+                        {% if inst.bn %}
+                            <div class="name-bn">{{ inst.bn }}</div>
+                        {% else %}
+                            <div class="name-bn empty">No Bangla name added</div>
+                        {% endif %}
+                    </td>
+                    <td style="text-align:center;">
+                        <a href="{{ url_for('delete_institute', inst_id=inst._id) }}"
+                           class="btn-delete"
+                           onclick="return confirm('Delete \'{{ inst.name }}\'? Students linked to this institution may be affected.')">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3">
+                        <div class="empty-state">
+                            <i class="fas fa-university"></i>
+                            No institutions added yet. Add your first one above.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function filterInst(query) {
+    const q = query.toLowerCase().trim();
+    document.querySelectorAll('#instTable tbody tr[data-name]').forEach(row => {
+        row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

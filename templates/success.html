@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Success | The Brilliant Foundation {% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+    }
+
+    .success-card { 
+        background: white; 
+        padding: 50px; 
+        max-width: 500px;
+        width: 100%;
+        text-align: center; 
+        border-radius: 15px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+        border-top: 8px solid #28a745; 
+    }
+
+    .check-icon {
+        font-size: 60px;
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+
+    h1 { color: #28a745; margin-bottom: 10px; }
+    
+    .info-container { 
+        background: #f8f9fa; 
+        padding: 25px; 
+        margin: 25px 0; 
+        border-radius: 10px; 
+        border: 1px solid #eee;
+    }
+
+    .info-row {
+        margin-bottom: 15px;
+    }
+
+    .info-row:last-child { margin-bottom: 0; }
+
+    .label { 
+        display: block; 
+        font-size: 0.85rem; 
+        color: #666; 
+        text-transform: uppercase; 
+        letter-spacing: 1px;
+    }
+
+    .highlight { 
+        color: var(--navy); 
+        font-weight: bold; 
+        font-size: 2rem; 
+        display: block;
+        margin-top: 5px;
+    }
+
+    .instruction {
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .btn-login { 
+        display: inline-block; 
+        padding: 15px 35px; 
+        background: var(--navy); 
+        color: white; 
+        text-decoration: none; 
+        border-radius: 8px; 
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .btn-login:hover {
+        background: #002244;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-wrapper">
+    <div class="success-card">
+        <div class="check-icon">✓</div>
+        <h1>Apply Successful!</h1>
+        <p style="color: #666;">Welcome to The Brilliant Foundation . Your application has been received.</p>
+        
+        <div class="info-container">
+            <div class="info-row">
+                <span class="label">Your Backup Serial ID</span>
+                <span class="highlight">{{ reg }}</span>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+            <div class="info-row">
+                <span class="label">Your Serial Number</span>
+                <span class="highlight">{{ roll }}</span>
+            </div>
+        </div>
+
+        <p class="instruction">
+            Please <b>save or screenshot</b> these details. You will need your <b>Serial Number</b> and the password you created to access your dashboard and download your admit card.
+        </p>
+
+        <a href="/login" class="btn-login">Go to Login</a>
+    </div>
+</div>
+{% endblock %}
