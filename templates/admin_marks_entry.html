@@ -1,0 +1,222 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<style>
+    :root {
+        --primary: #243342;
+        --secondary: #64748b;
+        --success: #10b981;
+        --danger: #ef4444;
+        --border: #e2e8f0;
+    }
+
+    .bulk-wrapper { padding: 2rem; font-family: 'Inter', sans-serif; }
+    .page-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .page-header h2 { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
+
+    /* Search Panel */
+    .search-panel {
+        background: white; padding: 1.5rem; border-radius: 12px;
+        border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        margin-bottom: 2rem; display: flex; gap: 15px; align-items: flex-end;
+    }
+
+    .input-box { flex: 1; }
+    .input-box label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--secondary); margin-bottom: 5px; }
+
+    .custom-input, .custom-select {
+        width: 100%; padding: 10px; border: 1px solid var(--border);
+        border-radius: 8px; font-size: 0.95rem;
+    }
+    .custom-input:focus, .custom-select:focus { border-color: var(--primary); outline: none; }
+
+    /* Table Styling */
+    .table-container {
+        background: white; border-radius: 12px; border: 1px solid var(--border);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); overflow: hidden;
+    }
+
+    .modern-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .modern-table thead tr { background: #f8fafc; border-bottom: 2px solid var(--border); }
+    .modern-table th { padding: 12px; font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); }
+    .modern-table tbody tr { border-bottom: 1px solid var(--border); transition: 0.2s; }
+    .modern-table tbody tr.active-row { background: #f0fdf4 !important; }
+
+    .mark-field {
+        width: 70px; padding: 8px; text-align: center; border: 1px solid var(--border);
+        border-radius: 6px; font-weight: 700;
+    }
+
+    .row-total { font-weight: 800; color: var(--primary); }
+    .sync-icon { font-size: 1.1rem; }
+
+    .btn-filter { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+</style>
+
+<div class="bulk-wrapper">
+    <div class="page-header">
+        <div>
+            <h2>Bulk Marks Allocation</h2>
+            <p style="color: var(--secondary);">Navigate with <b>Enter</b>. Changes save automatically.</p>
+        </div>
+    </div>
+
+    <form method="GET" action="{{ url_for('entry_marks') }}" class="search-panel">
+        <div class="input-box" style="flex: 1.2;">
+            <label>Search Roll</label>
+            <input type="text" name="roll_no" class="custom-input" placeholder="Roll No..." value="{{ request.args.get('roll_no', '') }}">
+        </div>
+        <div class="input-box">
+            <label>Grade/Class</label>
+            <select name="class" class="custom-select">
+                <option value="">All Classes</option>
+                {% for c in ["5","6","7","8","9"] %}
+                <option value="{{c}}" {{ 'selected' if request.args.get('class') == c }}>Grade {{c}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="input-box">
+            <label>Institution</label>
+            <select name="institute" class="custom-select">
+                <option value="">All Institutions</option>
+                {% for inst in institutes %}
+                <option value="{{inst.name}}" {{ 'selected' if request.args.get('institute') == inst.name }}>{{inst.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn-filter">Apply Filter</button>
+    </form>
+
+    {% if students %}
+    <div class="table-container">
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th style="text-align: center;">Roll</th>
+                    <th>Student Details</th>
+                    <th style="text-align: center;">Bangla</th>
+                    <th style="text-align: center;">English</th>
+                    <th style="text-align: center;">Math</th>
+                    <th style="text-align: center;">GK</th>
+                    <th style="text-align: center;">Total</th>
+                    <th>Scholarship</th>
+                    <th style="width: 50px;">Sync</th>
+                </tr>
+            </thead>
+            <tbody id="bulkTableBody">
+                {% for s in students %}
+                <tr data-roll="{{ s.roll_no }}">
+                    <td style="text-align: center; font-weight: bold;">{{ s.roll_no }}</td>
+                    <td>
+                        <div style="font-weight: 700; font-size: 0.9rem;">{{ s.name_en }}</div>
+                        <div style="font-size: 0.7rem; color: var(--secondary);">{{ s.institute_en }}</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="number" step="0.5" class="mark-field m-input ban" value="{{ s.marks.bangla if s.marks.bangla else '' }}">
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="number" step="0.5" class="mark-field m-input eng" value="{{ s.marks.english if s.marks.english else '' }}">
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="number" step="0.5" class="mark-field m-input math" value="{{ s.marks.math if s.marks.math else '' }}">
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="number" step="0.5" class="mark-field m-input gk" value="{{ s.marks.gk if s.marks.gk else '' }}">
+                    </td>
+                    <td style="text-align: center;" class="row-total">0.00</td>
+                    <td>
+                        <select class="custom-select scholarship-grade">
+                            {% for g in ["Nothing", "Talentpool", "General", "Suveccha", "Quata"] %}
+                            <option value="{{g}}" {{ 'selected' if s.scholarship_grade == g }}>{{g}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td style="text-align: center;" class="sync-icon"><i class="fas fa-check-circle" style="color: #e2e8f0;"></i></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background: white; border-radius: 12px; border: 2px dashed #e2e8f0;">
+        <p style="color: var(--secondary);">No students found. Use the filters above.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // লাইভ টোটাল আপডেট
+    function calculate() {
+        document.querySelectorAll('#bulkTableBody tr').forEach(row => {
+            let total = 0;
+            row.querySelectorAll('.m-input').forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            row.querySelector('.row-total').innerText = total.toFixed(2);
+        });
+    }
+
+    // AJAX সেভ ফাংশন
+    async function saveRow(row) {
+        const roll = row.getAttribute('data-roll');
+        const data = {
+            roll_no: roll,
+            ban: row.querySelector('.ban').value,
+            eng: row.querySelector('.eng').value,
+            math: row.querySelector('.math').value,
+            gk: row.querySelector('.gk').value,
+            scholarship_grade: row.querySelector('.scholarship-grade').value
+        };
+
+        const icon = row.querySelector('.sync-icon i');
+        icon.className = "fas fa-spinner fa-spin";
+        icon.style.color = "#4f46e5";
+        row.classList.add('active-row');
+
+        try {
+            const response = await fetch("{{ url_for('save_bulk_marks') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                icon.className = "fas fa-check-circle";
+                icon.style.color = "#10b981";
+                setTimeout(() => row.classList.remove('active-row'), 1000);
+            }
+        } catch (err) {
+            icon.className = "fas fa-times-circle";
+            icon.style.color = "#ef4444";
+        }
+    }
+
+    // ইভেন্ট লিসেনারস
+    const allInputs = Array.from(document.querySelectorAll('.m-input, .scholarship-grade'));
+    
+    allInputs.forEach((input, index) => {
+        // এন্টার নেভিগেশন এবং অটো-সেভ
+        input.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const currentRow = input.closest('tr');
+                await saveRow(currentRow);
+                
+                const next = allInputs[index + 1];
+                if (next) {
+                    next.focus();
+                    if(next.tagName === 'INPUT') next.select();
+                }
+            }
+        });
+
+        // ইনপুট টাইপ করলে ক্যালকুলেট হবে
+        input.addEventListener('input', calculate);
+
+        // স্কলারশিপ গ্রেড চেঞ্জ করলে অটো সেভ হবে
+        if(input.classList.contains('scholarship-grade')) {
+            input.addEventListener('change', () => saveRow(input.closest('tr')));
+        }
+    });
+
+    window.onload = calculate;
+</script>
+{% endblock %}
