@@ -1,0 +1,126 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Bulk Admit Download | Admin{% endblock %}
+
+{% block content %}
+<style>
+    .admin-wrapper { padding: 30px; background: #f4f7f6; min-height: 100vh; }
+    .filter-card {
+        background: white; padding: 25px; border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px;
+        border-top: 5px solid #2c3e50;
+    }
+    .filter-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px; align-items: flex-end;
+    }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #4a5568; font-size: 0.85rem; }
+    .form-control {
+        width: 100%; padding: 10px; border: 1px solid #e2e8f0;
+        border-radius: 6px; font-size: 0.9rem; outline: none;
+    }
+    .btn-filter {
+        background: #2c3e50; color: white; padding: 11px; border: none;
+        border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.3s;
+    }
+    .btn-filter:hover { background: #1a252f; }
+
+    .result-card {
+        background: white; border-radius: 12px; overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .status-bar {
+        padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #f1f5f9;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .btn-print-all {
+        background: #e74c3c; color: white; padding: 8px 20px; border-radius: 50px;
+        text-decoration: none; font-weight: 700; font-size: 0.85rem; transition: 0.3s;
+    }
+    .btn-print-all:hover { background: #c0392b; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 15px 20px; background: #f8fafc; color: #64748b; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 15px 20px; border-top: 1px solid #f1f5f9; font-size: 0.9rem; color: #2d3748; }
+</style>
+
+<div class="admin-wrapper">
+    <div class="filter-card">
+        <h3 style="margin-top:0; margin-bottom:20px; color:#2c3e50;"><i class="fas fa-filter"></i> Bulk Admit Filter</h3>
+        <form method="GET" class="filter-grid">
+            <div class="form-group">
+                <label>Select Class</label>
+                <select name="class" class="form-control">
+                    <option value="">All Classes</option>
+                    {% for c in classes %}
+                    <option value="{{c}}" {% if selected_class == c %}selected{% endif %}>Grade {{c}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Select School</label>
+                <select name="school" class="form-control">
+                    <option value="">All Schools</option>
+                    {% for s in schools %}
+                    <option value="{{s}}" {% if selected_school == s %}selected{% endif %}>{{s}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn-filter">Fetch Students</button>
+        </form>
+    </div>
+
+    {% if students %}
+    <div class="result-card">
+        <div class="status-bar">
+            <span>Found <b>{{ students|length }}</b> students</span>
+            <button onclick="printBulk()" class="btn-print-all">
+                <i class="fas fa-print"></i> Print All Admits
+            </button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Roll</th>
+                    <th>Student Name</th>
+                    <th>Class</th>
+                    <th>School</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td><b>{{ s.roll_no }}</b></td>
+                    <td>{{ s.name_en }}</td>
+                    <td>Grade {{ s.class }}</td>
+                    <td>{{ s.institute_en }}</td>
+                    <td>
+                        {% if s.verification %}
+                        <span style="color: #27ae60;"><i class="fas fa-check-circle"></i> Verified</span>
+                        {% else %}
+                        <span style="color: #e67e22;"><i class="fas fa-clock"></i> Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:50px; color:#94a3b8;">
+        <i class="fas fa-users-slash" style="font-size:40px; margin-bottom:15px;"></i>
+        <p>No students found for the selected filter.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function printBulk() {
+        // এখানে আপনি আপনার প্রিন্ট লজিক অ্যাড করবেন। 
+        // সাধারণত এটি একটি নতুন উইন্ডো ওপেন করে সব অ্যাডমিট কার্ড রেন্ডার করবে।
+        const url = "{{ url_for('approve_admits') }}?class={{selected_class}}&school={{selected_school}}";
+        window.open(url, '_blank');
+    }
+</script>
+{% endblock %}

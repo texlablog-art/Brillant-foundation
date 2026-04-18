@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Download Admit Card | TBF{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .search-wrapper {
+        display: flex; justify-content: center; align-items: center;
+        min-height: 80vh; background: #f4f7f6; padding: 20px;
+    }
+    .search-card {
+        width: 100%; max-width: 400px; background: #FFFFFF;
+        border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border-top: 6px solid #e74c3c; /* Admit Card এর জন্য লাল রঙ ব্যবহার করা হয়েছে */
+        overflow: hidden;
+    }
+    .search-header { padding: 30px 20px 10px; text-align: center; }
+    .search-header img { height: 80px; margin-bottom: 10px; }
+    .search-header h2 { font-size: 1.5rem; color: #2c3e50; margin: 0; }
+    .search-header p { font-size: 0.9rem; color: #718096; margin-top: 5px; }
+    
+    .search-body { padding: 30px; }
+    .form-group { margin-bottom: 22px; position: relative; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #4a5568; font-size: 0.85rem; }
+    
+    .form-control {
+        width: 100%; padding: 12px 15px; border: 1px solid #e2e8f0;
+        border-radius: 6px; font-size: 1rem; box-sizing: border-box;
+        transition: all 0.3s ease; text-align: center;
+    }
+    .form-control:focus { border-color: #e74c3c; outline: none; box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1); }
+
+    .btn-search {
+        width: 100%; background: #e74c3c; color: white; padding: 14px;
+        border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
+        transition: 0.3s; margin-top: 5px; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-search:hover { background: #c0392b; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    
+    .search-footer { text-align: center; padding: 20px; background: #f8fafc; font-size: 0.85rem; border-top: 1px solid #f1f5f9; color: #94a3b8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-wrapper">
+    <div class="search-card">
+        <div class="search-header">
+            <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" alt="TBF Logo">
+            <h2>Download Admit</h2>
+            <p>প্রবেশপত্র পেতে রোল বা মোবাইল নম্বর দিন</p>
+        </div>
+        
+        <div class="search-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div style="padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid; font-size: 0.85rem;
+                    background: #fff5f5; color: #c53030; border-color: #feb2b2;">
+                    <i class="fas fa-exclamation-circle"></i> {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('download_admit') }}" method="POST" id="admitForm">
+                <div class="form-group">
+                    <label><i class="fas fa-search"></i> Roll or Mobile Number</label>
+                    <input type="text" name="search_query" class="form-control" 
+                           placeholder="e.g. 10025 or 017XXXXXXXX" required autofocus autocomplete="off">
+                </div>
+
+                <button type="submit" class="btn-search" id="submitBtn">
+                    <i class="fas fa-cloud-download-alt"></i> 
+                    <span>Get Admit Card</span>
+                </button>
+            </form>
+        </div>
+        
+        <div class="search-footer">
+            Enter চেপে সরাসরি সার্চ করুন <br>
+            <b>The Brilliants Foundation, Bogura</b>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('admitForm');
+    const btn = document.getElementById('submitBtn');
+    const btnText = btn.querySelector('span');
+
+    form.onsubmit = function() {
+        btnText.innerText = 'Searching...';
+        btn.querySelector('i').className = 'fas fa-spinner fa-spin';
+        btn.style.opacity = '0.8';
+        btn.style.pointerEvents = 'none';
+    };
+</script>
+{% endblock %}

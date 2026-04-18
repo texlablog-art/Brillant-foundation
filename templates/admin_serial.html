@@ -1,0 +1,60 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<div style="padding: 40px; background: #f1f5f9; min-height: 100vh; font-family: 'Inter', sans-serif;">
+    <div style="max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+        <div style="background: #0f172a; padding: 25px; color: #fff; border-radius: 12px 12px 0 0; text-align: center;">
+            <h2 style="margin:0; font-size: 20px;">Exam Serial Allocation</h2>
+            <p style="margin:5px 0 0; opacity:0.7; font-size:12px;">Automated Roll & Reg Assignment</p>
+        </div>
+
+        <div style="padding: 30px;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div style="padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: center; background: {% if category=='success' %}#dcfce7; color: #166534;{% else %}#fee2e2; color: #991b1b;{% endif %}; border: 1px solid currentColor;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; font-weight:600; font-size:14px; color:#475569; margin-bottom:8px;">Select Exam Center</label>
+                    <select name="center_code" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc;" required>
+                        <option value="">-- Choose Center --</option>
+                        {% for center in centers %}
+                            <option value="{{ center.code }}">{{ center.name }} (Code: {{ center.code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display:block; font-weight:600; font-size:14px; color:#475569; margin-bottom:8px;">Class (5-9)</label>
+                    <select name="student_class" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc;" required>
+                        <option value="">-- Choose Class --</option>
+                        {% for c in ["5","6","7","8","9"] %}
+                            <option value="{{c}}">Class {{c}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:14px; color:#475569; margin-bottom:8px;">Start Roll</label>
+                        <input type="number" name="start_roll" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px;" placeholder="e.g. 1001" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:14px; color:#475569; margin-bottom:8px;">Start Reg</label>
+                        <input type="number" name="start_reg" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px;" placeholder="e.g. 26001" required>
+                    </div>
+                </div>
+
+                <button type="submit" style="width:100%; background:#2563eb; color:#fff; padding:15px; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:16px;">
+                    Generate Serial Numbers
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
