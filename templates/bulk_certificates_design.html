@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulk Certificates Print - The Brilliants Foundation</title>
+    <style>
+        /* ফন্ট সেটআপ */
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@1,600&display=swap');
+        @import url('https://fonts.maateen.me/kalpurush/font.css');
+
+        /* প্রিন্ট সেটিংস */
+        @media print {
+            @page { 
+                size: A4 landscape; 
+                margin: 0; 
+            }
+            body { 
+                margin: 0; 
+                background: none;
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
+            .cert-page {
+                page-break-after: always;
+            }
+            /* শেষ পৃষ্ঠার পর এক্সট্রা ব্ল্যাঙ্ক পেজ রোধ করতে */
+            .cert-page:last-child {
+                page-break-after: auto;
+            }
+        }
+
+        body {
+            margin: 0; 
+            padding: 0;
+            background: #555; /* প্রিভিউ দেখার জন্য ডার্ক ব্যাকগ্রাউন্ড */
+            font-family: "Times New Roman", Times, serif, "Kalpurush", Arial, sans-serif;
+        }
+
+        /* প্রতিটি সার্টিফিকেটের জন্য আলাদা পেজ কন্টেইনার */
+        .cert-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* প্রিভিউতে সেন্টারে রাখার জন্য */
+        }
+
+        /* মূল সার্টিফিকেট বক্স */
+        .cert-container {
+            width: 1123px; /* A4 Landscape (96 DPI) */
+            height: 794px;
+            position: relative;
+            background-image: url('/static/img/certificate_original.jpg'); 
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-color: white;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); /* প্রিভিউতে গভীরতা দেওয়ার জন্য */
+        }
+
+        @media print {
+            .cert-container {
+                box-shadow: none;
+            }
+        }
+
+        /* ডাটা ফিল্ডের কমন স্টাইল */
+        .field {
+            position: absolute;
+            font-size: 20px;
+            font-style: italic;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            color: #1a1a1a;
+        }
+
+        /* পজিশনিং (আপনার দেওয়া ম্যাপিং অনুযায়ী) */
+        .sl-no { top: 14.5%; left: 21.5%; width: 70px; }
+        .reg-no { top: 14.2%; right: 7.5%; width: 140px; justify-content: flex-start; }
+        .exam-year { top: 32.5%; left: 62.5%; font-size: 28px; }
+
+        .student-name { top: 49.3%; left: 26%; width: 63%; justify-content: center; font-size: 30px; }
+        .father-name { top: 56%; left: 24%; width: 64%; justify-content: center; }
+
+        .student-class { top: 61.6%; left: 24%; width: 100px; justify-content: center; }
+        .institute { top: 61.6%; left: 45%; width: 46%; justify-content: center; }
+
+        .roll-no { top: 67%; left: 17%; width: 120px; justify-content: center; }
+        .center-name { top: 67%; left: 31.5%; width: 210px; justify-content: center; }
+        .scholarship-grade { top: 67%; right: 14%; width: 120px; justify-content: center; }
+
+        .pub-date { top: 83%; left: 18%; width: 160px; justify-content: center; }
+
+    </style>
+</head>
+<body>
+
+    {% for student in students %}
+    <div class="cert-page">
+        <div class="cert-container">
+            <div class="field sl-no">{{ student.certificate_sl_no or '4263' }}</div>
+            <div class="field reg-no">{{ student.reg_no or '1865593' }}</div>
+
+            <div class="field exam-year">-{{ student.exam_year or '2026' }}</div>
+
+            <div class="field student-name">{{ student.name_en|upper }}</div>
+            <div class="field father-name">{{ student.father_en|upper }}</div>
+
+            <div class="field student-class">{{ student.student_class }}</div>
+            <div class="field institute">{{ student.institute_en|upper }}</div>
+
+            <div class="field roll-no">{{ student.roll_no }}</div>
+            
+            {# সেন্টারের নাম দেখানোর জন্য লজিক (যদি ব্যাকএন্ড থেকে না আসে) #}
+            <div class="field center-name">
+                {% set mapping = {"1": "Sariakandi", "2": "Gabtali", "3": "Khottapara", "4": "Aria Bajar", "5": "Dhunat", "6": "Summit", "7": "Sonka", "8": "Sukhanpukur", "9": "Sonatola"} %}
+                {{ mapping.get(student.center_code|string, "Brilliants Center") }}
+            </div>
+
+            <div class="field scholarship-grade">{{ student.scholarship_grade or 'General' }}</div>
+
+            <div class="field pub-date">{{ student.result_publication_date or '30-03-2026' }}</div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        // পেজ লোড হওয়ার পর অটোমেটিক প্রিন্ট ডায়ালগ
+        window.onload = function() {
+            setTimeout(() => { 
+                window.print(); 
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

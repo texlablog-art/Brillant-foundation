@@ -1,0 +1,113 @@
+{% extends "admin_base.html" %}
+{% block content %}
+<div style="padding: 30px; background: #f8fafc; min-height: 100vh; font-family: 'Inter', sans-serif;">
+    <div style="max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        
+        <h2 style="text-align: center; color: #1e293b; margin-bottom: 25px; font-weight: 700;">
+            <i class="fas fa-certificate" style="color: #2563eb; margin-right: 10px;"></i>Certificate Management
+        </h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 14px; 
+                        background: {% if category=='success' %}#dcfce7; color: #166534;{% else %}#fee2e2; color: #991b1b;{% endif %}; border: 1px solid currentColor;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="GET" action="{{ url_for('admin_certificates') }}" style="background: #f1f5f9; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end;">
+                
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 5px;">SEARCH NAME/ROLL</label>
+                    <input type="text" name="search_query" value="{{ request.args.get('search_query', '') }}" placeholder="Search..." 
+                           style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; outline: none;">
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 5px;">CLASS</label>
+                    <select name="class" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer;">
+                        <option value="">All Classes</option>
+                        {% for c in ['5', '6', '7', '8', '9'] %}
+                        <option value="{{ c }}" {{ 'selected' if request.args.get('class') == c }}>Grade {{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 5px;">CENTER</label>
+                    <select name="center" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer;">
+                        <option value="">All Centers</option>
+                        {% for center in all_centers %}
+                        <option value="{{ center }}" {{ 'selected' if request.args.get('center') == center }}>{{ center }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" style="flex: 2; padding: 11px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; transition: 0.3s;">
+                        <i class="fas fa-filter"></i> FILTER
+                    </button>
+                    <a href="{{ url_for('admin_certificates') }}" style="flex: 1; padding: 11px; background: #64748b; color: white; border-radius: 8px; text-decoration: none; text-align: center; font-weight: 700;">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        {% if students %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px;">
+            <p style="font-size: 14px; color: #64748b;">Showing <strong>{{ students|length }}</strong> Verified Students</p>
+            
+            <form action="{{ url_for('print_all_certificates') }}" method="GET" target="_blank">
+                <input type="hidden" name="search_query" value="{{ request.args.get('search_query', '') }}">
+                <input type="hidden" name="class" value="{{ request.args.get('class', '') }}">
+                <input type="hidden" name="center" value="{{ request.args.get('center', '') }}">
+                
+                <button type="submit" style="padding: 10px 20px; background: #059669; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.2);">
+                    <i class="fas fa-print"></i> Print All Filtered
+                </button>
+            </form>
+        </div>
+
+        <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                <thead>
+                    <tr style="background: #f8fafc; text-align: left;">
+                        <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 12px; font-weight: 800;">ROLL NO</th>
+                        <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 12px; font-weight: 800;">STUDENT NAME (EN)</th>
+                        <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 12px; font-weight: 800;">CLASS</th>
+                        <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 12px; font-weight: 800; text-align: center;">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr style="border-bottom: 1px solid #f1f5f9; transition: 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 15px; font-weight: 800; color: #1e293b;">#{{ s.roll_no }}</td>
+                        <td style="padding: 15px; color: #334155; font-weight: 500;">{{ s.name_en|upper }}</td>
+                        <td style="padding: 15px; color: #64748b;">Grade {{ s.student_class }}</td>
+                        <td style="padding: 15px; text-align: center;">
+                            <a href="{{ url_for('print_certificate', student_id=s._id|string) }}" 
+                               target="_blank" 
+                               style="text-decoration: none; color: #2563eb; background: #eff6ff; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #bfdbfe; transition: 0.2s;">
+                               <i class="fas fa-certificate"></i> View Certificate
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div style="text-align: center; padding: 60px; color: #64748b; background: #f8fafc; border-radius: 12px; border: 2px dashed #cbd5e1; margin-top: 20px;">
+                <i class="fas fa-search" style="font-size: 40px; margin-bottom: 15px; opacity: 0.3;"></i>
+                <p style="font-size: 16px; font-weight: 600;">No verified students match your criteria.</p>
+                <small>Try adjusting the filters or search keywords.</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

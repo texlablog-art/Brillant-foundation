@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Copy - {{ student.roll_no }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Times New Roman', serif, 'Hind Siliguri';
+            background-color: #525659;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* পেপার সাইজ সেটিংস */
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
+        .paper {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid #000;
+        }
+
+        /* হেডার ডিজাইন */
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+        }
+
+        .header-text {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #1B2631;
+            text-transform: uppercase;
+        }
+
+        .header-text p {
+            margin: 2px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .sl-box {
+            border: 2px solid #000;
+            padding: 10px;
+            font-size: 14px;
+            text-align: left;
+            min-width: 140px;
+            background: #f9f9f9;
+        }
+
+        .title-banner {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            background: #1B2631;
+            color: white;
+            padding: 8px 0;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* কন্টেন্ট সেকশন */
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .info-section {
+            width: 75%;
+        }
+
+        .photo-section {
+            width: 25%;
+            text-align: right;
+        }
+
+        .photo-box {
+            width: 140px;
+            height: 160px;
+            border: 2px solid #000;
+            display: inline-block;
+            background: #fff;
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ডাটা টেবিল */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .info-table td {
+            padding: 12px 5px;
+            font-size: 16px;
+            border-bottom: 1px dotted #999;
+            vertical-align: top;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 200px;
+            color: #1B2631;
+        }
+
+        .section-head {
+            font-weight: bold;
+            font-size: 18px;
+            border-bottom: 2px solid #1B2631;
+            display: inline-block;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            color: #1B2631;
+        }
+
+        /* ফুটার */
+        .footer {
+            margin-top: 80px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sig-block {
+            text-align: center;
+            width: 200px;
+        }
+
+        .sig-line {
+            border-top: 2px solid #000;
+            margin-top: 10px;
+            padding-top: 5px;
+            font-weight: bold;
+        }
+
+        .auth-sig-img {
+            width: 140px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .system-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20mm;
+            right: 20mm;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+        }
+
+        /* প্রিন্ট বাটন */
+        .no-print-zone {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .btn-print {
+            padding: 12px 40px;
+            font-size: 18px;
+            background: #1B2631;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* প্রিন্ট লজিক */
+        @media print {
+            body { background: white; }
+            .paper { margin: 0; box-shadow: none; border: none; }
+            .no-print-zone { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print-zone">
+        <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <div class="paper">
+        <div class="header">
+            <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot_2026_01_20_020601_removebg_preview.png" class="logo">
+            <div class="header-text">
+                <h1>দ্য ব্রিলিয়ান্টস ফাউন্ডেশন, বগুড়া</h1>
+                <p>The Brilliants Foundation, Bogura</p>
+                <span style="font-size: 12px;">Reg No: 000-XX-2026</span>
+            </div>
+            <div class="sl-box">
+                Roll: <strong>#{{ student.roll_no }}</strong><br>
+                Date: {{ current_time.split(',')[0] if current_time else '20/04/2026' }}
+            </div>
+        </div>
+
+        <div class="title-banner">Official Applicant's Copy</div>
+
+        <div class="main-content">
+            <div class="info-section">
+                <div class="section-head">Personal Details</div>
+                <table class="info-table">
+                    <tr>
+                        <td class="label">Name (English)</td>
+                        <td>: {{ student.name_en | upper }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">নাম (বাংলা)</td>
+                        <td>: {{ student.name_bn }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Father's Name</td>
+                        <td>: {{ student.father_en }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Mother's Name</td>
+                        <td>: {{ student.mother_en }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Date of Birth</td>
+                        <td>: {{ student.dob }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Mobile No</td>
+                        <td>: {{ student.mobile }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="photo-section">
+                <div class="photo-box">
+                    {% if student.photo_url %}
+                        <img src="{{ student.photo_url }}" alt="Student Photo">
+                    {% else %}
+                        <div style="padding-top: 60px; font-size: 12px; color: #ccc;">Passport Photo</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="section-head">Academic & Exam Information</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Institution Name</td>
+                <td>: {{ student.institute_en }}</td>
+            </tr>
+            <tr>
+                <td class="label">Applying Class</td>
+                <td>: Grade {{ student.student_class }}</td>
+            </tr>
+            <tr>
+                <td class="label">Exam Center</td>
+                <td>: {{ student.center_code }} - {{ center_name }}</td>
+            </tr>
+            <tr>
+                <td class="label">Present Address</td>
+                <td>: {{ student.address_present }}</td>
+            </tr>
+            <tr>
+                <td class="label">Transaction ID</td>
+                <td>: {{ student.tran_id or 'NOT PROVIDED' }}</td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            <div class="sig-block">
+                <div style="height: 50px;"></div>
+                <div class="sig-line">Student's Signature</div>
+            </div>
+            <div class="sig-block">
+                <img src="https://i.postimg.cc/sX21ngh3/rsz-screenshot-2026-01-23-185732.png" class="auth-sig-img">
+                <div class="sig-line">Authority Signature</div>
+            </div>
+        </div>
+
+        <div class="system-info">
+            Generated by Talent Search System | {{ current_time }} | System ID: {{ student._id }}
+        </div>
+    </div>
+
+</body>
+</html>

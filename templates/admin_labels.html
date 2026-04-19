@@ -1,0 +1,191 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<style>
+    /* ফন্ট সেটআপ */
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+
+    :root {
+        --navy-dark: #000;
+        --border-dark: #000;
+    }
+
+    body { font-family: 'Hind Siliguri', sans-serif; }
+
+    /* সাইড মেনু এবং ড্যাশবোর্ড স্টাইল */
+    .sidebar a, .nav-link, .sidebar a.active {
+        color: inherit !important;
+        background: transparent !important;
+    }
+
+    .dashboard-bg { background: #f8fafc; min-height: 100vh; padding: 20px; }
+
+    /* Filter UI */
+    .filter-grid {
+        display: grid; 
+        grid-template-columns: 1fr 1fr 1fr 1fr 1.2fr;
+        gap: 12px; 
+        align-items: flex-end;
+    }
+
+    .styled-select, .styled-input {
+        width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; font-size: 13px;
+    }
+
+    .btn-action {
+        background: var(--navy-dark); color: white; padding: 11px;
+        border-radius: 8px; cursor: pointer; border: none; font-weight: 700; width: 100%;
+    }
+
+    /* --- Label Grid Layout --- */
+    .label-grid { 
+        display: grid; 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 15px; 
+    }
+
+    /* Smart Label Card Design */
+    .smart-card {
+        background: white; border: 2px solid #000; display: flex; 
+        min-height: 175px; overflow: hidden; position: relative; page-break-inside: avoid;
+    }
+
+    .grade-ribbon {
+        width: 35px; display: flex; align-items: center; justify-content: center;
+        writing-mode: vertical-rl; transform: rotate(180deg);
+        color: white; font-size: 12px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+    
+    .ribbon-talentpool { background: #d97706; }
+    .ribbon-general { background: #2563eb; }
+    .ribbon-suveccha { background: #059669; }
+    .ribbon-quata { background: #7c3aed; }
+
+    .card-body-main { flex: 1; padding: 12px; display: flex; flex-direction: column; }
+
+    .card-brand-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px;
+    }
+    .card-brand-header img { height: 35px; }
+    .card-brand-header span { font-size: 11px; font-weight: 800; text-align: right; line-height: 1.2; color: #000; }
+
+    .name-heading { 
+        font-size: 20px; font-weight: 800; color: #000; margin-bottom: 8px;
+        border-left: 5px solid #000; padding-left: 10px; line-height: 1;
+    }
+    
+    .data-grid-small { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+    .data-point label { font-size: 10px; font-weight: 700; color: #444; display: block; margin-bottom: 2px; }
+    .data-point span { font-size: 16px; font-weight: 800; color: #000; }
+
+    .inst-footer {
+        margin-top: auto; font-size: 12px; font-weight: 700; color: #000;
+        background: #f1f5f9; padding: 6px 10px; border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+
+    @media print {
+        @page { size: portrait; margin: 8mm; }
+        .no-print { display: none !important; }
+        .dashboard-bg { padding: 0; background: white; }
+        .smart-card { border: 2px solid #000 !important; -webkit-print-color-adjust: exact; }
+        .page-break { page-break-after: always; clear: both; }
+    }
+</style>
+
+<div class="dashboard-bg">
+    <div class="filter-container-premium no-print">
+        <form method="GET" class="filter-grid">
+            <div>
+                <label style="font-size: 11px; font-weight: 800;">কেন্দ্র</label>
+                <select name="center" class="styled-select">
+                    <option value="">সকল কেন্দ্র</option>
+                    {% for c in all_centers %}<option value="{{c}}" {{ 'selected' if request.args.get('center') == c }}>{{c}}</option>{% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 11px; font-weight: 800;">শ্রেণী</label>
+                <select name="student_class" class="styled-select">
+                    <option value="">সকল শ্রেণী</option>
+                    {% for cls in ['5','6','7','8','9'] %}
+                    <option value="{{cls}}" {{ 'selected' if request.args.get('student_class') == cls }}>শ্রেণী {{cls}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 11px; font-weight: 800;">শিক্ষা প্রতিষ্ঠান</label>
+                <input type="text" name="school" class="styled-input" placeholder="স্কুলের নাম..." value="{{ request.args.get('school', '') }}">
+            </div>
+            <div>
+                <label style="font-size: 11px; font-weight: 800;">রোল নম্বর</label>
+                <input type="text" name="roll" class="styled-input" placeholder="রোল..." value="{{ request.args.get('roll', '') }}">
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button type="submit" class="btn-action">ফিল্টার</button>
+                <button type="button" onclick="window.print()" class="btn-action" style="background: #3b82f6;">প্রিন্ট</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="label-grid">
+        {% set label_count = namespace(value=0) %}
+        {% for s in students %}
+            {% set raw_grade = (s.get('scholarship_grade', '') or '')|upper %}
+            
+            {% if 'TALENTPOOL' in raw_grade or 'GENERAL' in raw_grade or 'SUVECCHA' in raw_grade or 'QUATA' in raw_grade %}
+                {% set label_count.value = label_count.value + 1 %}
+                
+                <div class="smart-card">
+                    <div class="grade-ribbon 
+                        {% if 'TALENTPOOL' in raw_grade %}ribbon-talentpool
+                        {% elif 'GENERAL' in raw_grade %}ribbon-general
+                        {% elif 'SUVECCHA' in raw_grade %}ribbon-suveccha
+                        {% elif 'QUATA' in raw_grade %}ribbon-quata
+                        {% endif %}">
+                        {# রিবনে ক্যাটাগরির নাম বাংলায় #}
+                        {% if 'TALENTPOOL' in raw_grade %}ট্যালেন্টপুল
+                        {% elif 'GENERAL' in raw_grade %}সাধারণ
+                        {% elif 'SUVECCHA' in raw_grade %}শুভেচ্ছা
+                        {% elif 'QUATA' in raw_grade %}কোটা
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body-main">
+                        <div class="card-brand-header">
+                            <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" alt="Logo">
+                            <span>দ্য ব্রিলিয়ান্টস ফাউন্ডেশন<br>সেশন ২০২৬</span>
+                        </div>
+
+                        <div class="name-heading">{{ s.get('name_bn') or s.get('name_en', 'N/A') }}</div>
+
+                        <div class="data-grid-small">
+                            <div class="data-point">
+                                <label>শ্রেণী</label>
+                                <span>{{ s.get('student_class', 'N/A') }}</span>
+                            </div>
+                            <div class="data-point">
+                                <label>রোল নম্বর</label>
+                                <span>{{ s.get('roll_no', 'N/A') }}</span>
+                            </div>
+                            <div class="data-point">
+                                <label>কেন্দ্র কোড</label>
+                                <span>{{ s.get('center_code', 'N/A') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="inst-footer">
+                            {{ s.get('institute_bn') or s.get('institute_en', 'N/A') }}
+                        </div>
+                    </div>
+                </div>
+
+                {% if label_count.value % 10 == 0 and not loop.last %}
+                    </div><div class="page-break"></div><div class="label-grid">
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

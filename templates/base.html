@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png">
+    
+    <title>{% block title %}The Brilliants Foundation{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        @import url('https://fonts.maateen.me/kalpurush/font.css');
+        
+        body {
+            font-family: "Times New Roman", Times, serif, "Kalpurush", Arial, sans-serif;
+            background: #f8fafc;
+        }
+        /* ===== FLASH MESSAGE STYLES ===== */
+        .flash-wrapper{
+            max-width: 1200px;
+            margin: 15px auto;
+        }
+
+        .flash{
+            padding: 14px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            animation: slideDown 0.4s ease;
+        }
+
+        .flash-success{
+            background: #d4edda;
+            color: #155724;
+            border-left: 6px solid #28a745;
+        }
+
+        .flash-danger{
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 6px solid #dc3545;
+        }
+
+        .flash-warning{
+            background: #fff3cd;
+            color: #856404;
+            border-left: 6px solid #ffc107;
+        }
+
+        .flash-info{
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 6px solid #17a2b8;
+        }
+
+        @keyframes slideDown{
+            from { opacity:0; transform: translateY(-8px); }
+            to { opacity:1; transform: translateY(0); }
+        }
+        .tesla-link {
+            text-decoration: none; /* Removes underline */
+            color: #e31937;        /* Tesla-style red */
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            transition: 0.3s;
+        }
+
+        .tesla-link:hover {
+            color: #000000;        /* Changes color on hover */
+            text-decoration: underline;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav>
+        <a href="/" class="logo-container">
+            <img src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" alt="Logo" class="logo-img">
+            <div class="logo-text">
+                <span class="main-title">THE BRILLIANTS FOUNDATION</span>
+                <span class="sub-title">BOGURA | ESTD-2002</span>
+            </div>
+        </a>
+        
+        <div class="menu-toggle" id="mobile-menu">
+            <span></span><span></span><span></span>
+        </div>
+
+        <div class="nav-links" id="nav-list">
+            <a href="/notices">Notices</a>
+            <a href="/apply">Apply</a>
+            <a href="/download-admit">Download Admit Card</a>
+            <a href="/contact">Contact</a>
+            <a href="/login" style="background: var(--gold); color: var(--navy);">Login</a>
+        </div>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container">
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-wrapper">
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <p><strong>THE BRILLIANTS FOUNDATION, BOGURA</strong></p>
+        <p>&copy; 2026 Admission Portal. All Rights Reserved.</p>
+        <a href="https://teslaxtech.onrender.com/" class="tesla-link">
+            Made with TeslaXTech
+        </a>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        const menuToggle = document.getElementById('mobile-menu');
+        const navList = document.getElementById('nav-list');
+
+        menuToggle.addEventListener('click', () => {
+            navList.classList.toggle('active');
+            const spans = menuToggle.querySelectorAll('span');
+            spans[0].style.transform = navList.classList.contains('active') ? 'rotate(45deg) translate(6px, 6px)' : 'none';
+            spans[1].style.opacity = navList.classList.contains('active') ? '0' : '1';
+            spans[2].style.transform = navList.classList.contains('active') ? 'rotate(-45deg) translate(7px, -7px)' : 'none';
+        });
+
+        /* Auto-hide flash messages */
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 4000);
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

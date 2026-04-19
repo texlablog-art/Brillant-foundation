@@ -1,0 +1,40 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 50px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 25px;">Export Student Data</h2>
+    
+    <form action="{{ url_for('export_detailed_data') }}" method="GET">
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Select Class</label>
+            <select name="class" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                <option value="">All Classes</option>
+                <option value="5">Grade 5</option>
+                <option value="6">Grade 6</option>
+                <option value="7">Grade 7</option>
+                <option value="8">Grade 8</option>
+                <option value="9">Grade 9</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Select School</label>
+            <select name="school" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                <option value="">All Schools</option>
+                {% for s in schools %}
+                <option value="{{ s }}">{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" style="width: 100%; background: #10b981; color: white; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
+            <i class="fas fa-file-download"></i> Download CSV File
+        </button>
+    </form>
+    
+    <p style="text-align: center; font-size: 12px; color: #7f8c8d; margin-top: 15px;">
+        * এটি অটোমেটিক UTF-8 ফরম্যাটে ডাউনলোড হবে।
+    </p>
+</div>
+{% endblock %}

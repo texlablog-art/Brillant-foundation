@@ -1,0 +1,221 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<style>
+    /* Font Loading */
+    @import url('https://fonts.cdnfonts.com/css/times-new-roman');
+    /* নোট: কালপুরুষ ফন্টটি ইউজারের পিসিতে ইনস্টল থাকতে হবে অথবা ওয়েবফন্ট হিসেবে যুক্ত থাকতে হবে */
+
+    :root {
+        --primary: #1B2631;
+        --secondary: #64748b;
+    }
+
+    /* Printing Logic */
+    @media print {
+        .sidebar, .top-nav, .no-print, .admin-filter-card { display: none !important; }
+        .main-wrapper, .scroll-area { overflow: visible !important; display: block !important; margin: 0 !important; padding: 0 !important; }
+        body { background: white !important; margin: 0; padding: 0; }
+        
+        .print-container { 
+            border: none !important; 
+            margin: 0 auto !important; 
+            box-shadow: none !important;
+            page-break-after: always;
+        }
+
+        .seat-slip {
+            border: 1.5px dashed #000 !important; /* প্রিন্টে কাটার দাগ আরও স্পষ্ট */
+        }
+    }
+
+    /* A4 Layout: 2 Columns & 5 Rows */
+    .print-container {
+        width: 210mm;
+        min-height: 290mm;
+        padding: 4mm;
+        margin: 20px auto;
+        background: white;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 57mm; /* সাইজ কিছুটা সমন্বয় করা হয়েছে */
+        gap: 0;
+        box-sizing: border-box;
+        border: 1px solid #eee;
+    }
+
+    .seat-slip {
+        border: 1px dashed #bbb;
+        display: flex;
+        flex-direction: column;
+        height: 57mm;
+        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
+        padding: 2.5mm;
+        background: #fff;
+        /* Fonts */
+        font-family: 'Times New Roman', Times, serif;
+    }
+
+    /* Bengali Font Class */
+    .bn-font {
+        font-family: 'Kalpurush', Arial, sans-serif;
+    }
+
+    /* Header Styling */
+    .slip-top-header {
+        display: flex;
+        align-items: center;
+        background: #f1f5f9;
+        padding: 5px 10px;
+        border-bottom: 2px solid var(--primary);
+        gap: 10px;
+    }
+
+    .foundation-logo {
+        width: 35px;
+        height: 35px;
+        object-fit: contain;
+    }
+
+    .header-text h2 {
+        margin: 0;
+        font-size: 13px; /* বড় করা হয়েছে */
+        font-weight: 900;
+        color: var(--primary);
+    }
+
+    .header-text p {
+        margin: 0;
+        font-size: 10px; /* বড় করা হয়েছে */
+        font-weight: 700;
+        color: #92400e;
+        text-transform: uppercase;
+    }
+
+    .slip-content {
+        display: flex;
+        padding: 8px;
+        gap: 12px;
+        flex: 1;
+    }
+
+    .photo-frame { flex: 0 0 70px; text-align: center; }
+    .photo-frame img {
+        width: 70px;
+        height: 80px;
+        object-fit: cover;
+        border: 1.5px solid #333;
+    }
+
+    .info-fields { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    
+    .student-name-main {
+        font-size: 15px; /* বড় করা হয়েছে */
+        font-weight: 900;
+        color: #000;
+        margin-bottom: 4px;
+        border-bottom: 1.5px solid #ccc;
+        line-height: 1.2;
+    }
+
+    .info-row {
+        font-size: 11px; /* বড় করা হয়েছে */
+        line-height: 1.3;
+        display: flex;
+    }
+
+    .info-row span { 
+        font-weight: 700; 
+        min-width: 65px; 
+        color: #475569; 
+    }
+    
+    .info-row b { color: #000; font-weight: 800; }
+
+    /* Bottom Bar */
+    .status-bar {
+        margin-top: auto;
+        display: flex;
+        background: var(--primary);
+        color: white;
+        padding: 5px 12px;
+        justify-content: space-between;
+        font-size: 13px; /* বড় করা হয়েছে */
+        font-weight: 900;
+    }
+
+    .status-bar .roll-tag { 
+        color: #fbbf24; 
+        font-size: 14px; /* বড় করা হয়েছে */
+    }
+
+    .no-print { margin-bottom: 20px; }
+</style>
+
+<div class="no-print">
+    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h3 style="font-family: 'Times New Roman';"><i class="fas fa-cut"></i> Seat Plan (Fonts: Times New Roman & Kalpurush)</h3>
+        <form method="GET" style="display: flex; gap: 10px;">
+            <select name="center" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">-- All Centers --</option>
+                {% for c in all_centers %}
+                <option value="{{ c }}" {{ 'selected' if request.args.get('center') == c }}>{{ c }}</option>
+                {% endfor %}
+            </select>
+            <select name="class" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">-- All Classes --</option>
+                {% for c in ['5','6','7','8','9'] %}
+                <option value="{{c}}" {{ 'selected' if request.args.get('class') == c }}>Class {{c}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" style="background: #1B2631; color: white; padding: 8px 20px; border: none; border-radius: 5px; cursor: pointer;">Filter</button>
+            <button type="button" onclick="window.print()" style="background: #059669; color: white; padding: 8px 20px; border: none; border-radius: 5px; cursor: pointer;">Print A4</button>
+        </form>
+    </div>
+</div>
+
+<div class="print-container">
+    {% for s in students %}
+    <div class="seat-slip">
+        <div class="slip-top-header">
+            <img class="foundation-logo" src="https://i.postimg.cc/SsLDX6WZ/Screenshot-2026-01-20-020601-removebg-preview.png" alt="Logo">
+            <div class="header-text">
+                <h2>THE BRILLIANTS FOUNDATION, BOGURA</h2>
+                <p>Scholarship Examination - 2026</p>
+            </div>
+        </div>
+        
+        <div class="slip-content">
+            <div class="photo-frame">
+                <img src="{{ s.photo_url }}" class="student-img">
+            </div>
+
+            <div class="info-fields">
+                <div class="student-name-main">{{ s.name_en|upper }}</div>
+                <div class="info-row">
+                    <span class="bn-font">নাম (বাংলা):</span> 
+                    <b class="bn-font">{{ s.name_bn }}</b>
+                </div>
+                <div class="info-row"><span>Institute:</span> <b>{{ s.institute_en[:30] }}</b></div>
+                <div class="info-row"><span>Reg No:</span> <b>{{ s.reg_no }}</b></div>
+                <div class="info-row"><span>Center:</span> <b>{{ s.center_name }}</b></div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>CLASS: {{ s.student_class }}</span>
+            <span class="roll-tag">ROLL: {{ s.roll_no }}</span>
+        </div>
+    </div>
+
+    {% if loop.index % 10 == 0 and not loop.last %}
+        </div><div class="print-container">
+    {% endif %}
+    
+    {% else %}
+    <div style="grid-column: span 2; text-align: center; padding: 50px; color: #999;">No data found.</div>
+    {% endfor %}
+</div>
+{% endblock %}
